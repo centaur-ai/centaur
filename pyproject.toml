@@ -6,7 +6,8 @@ authors = ["Centaur Team"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
+python = "^3.9"
+flask = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.0"
