@@ -8,6 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.9"
 flask = "^3.1.0"
+watchdog = "^6.0.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.0"
