@@ -19,4 +19,3 @@ class JSONLHandler(FileSystemEventHandler):
                     except json.JSONDecodeError:
                         continue
                 self.last_read_position = f.tell()
-
