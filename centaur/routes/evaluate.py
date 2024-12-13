@@ -33,7 +33,9 @@ def evaluate(id):
                 while True:
                     if not queue.empty():
                         data = queue.get()
-                        if (data["type"] == "system"
+                        if ("event" in data
+                                and "type" in data
+                                and data["type"] == "system"
                                 and data["event"] == "stream_end"):
                             observer.stop()
                             break
