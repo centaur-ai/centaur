@@ -4,12 +4,13 @@ import json
 import tempfile
 from queue import Queue
 from watchdog.events import FileSystemEvent
-from centaur.jsonl_handler import JSONLHandler  # Replace 'your_module' with the actual module name
+from centaur.jsonl_handler import JSONLHandler
 
 
 @pytest.fixture
 def temp_jsonl_file():
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.jsonl') as temp_file:
+    with (tempfile.NamedTemporaryFile(delete=False, suffix='.jsonl')
+          as temp_file):
         file_path = temp_file.name
     yield file_path
 

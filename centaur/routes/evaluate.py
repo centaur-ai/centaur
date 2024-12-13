@@ -14,22 +14,27 @@ blueprint = Blueprint("evaluate", __name__)
 @blueprint.route('/evaluate/<id>')
 def evaluate(id):
     def stream():
-        file_path = os.path.join(tempfile.gettempdir(), "centaur", f"{id}.jsonl")
+        file_path = os.path.join(
+            tempfile.gettempdir(), "centaur", f"{id}.jsonl")
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-        with open(file_path, "w") as file:
+        with open(file_path, "w"):
             pass
 
             queue = Queue()
             observer = Observer()
-            observer.schedule(JSONLHandler(id, queue), os.path.join(tempfile.gettempdir(), "centaur"), recursive=False)
+            observer.schedule(
+                JSONLHandler(id, queue),
+                os.path.join(tempfile.gettempdir(), "centaur"),
+                recursive=False)
             observer.start()
 
             try:
                 while True:
                     if not queue.empty():
                         data = queue.get()
-                        if data["type"] == "system" and data["event"] == "stream_end":
+                        if (data["type"] == "system"
+                                and data["event"] == "stream_end"):
                             observer.stop()
                             break
                         else:
