@@ -1,18 +1,30 @@
-from flask import Blueprint, Response, jsonify
+from flask import Blueprint, Response, jsonify, request
 from watchdog.observers import Observer
 from queue import Queue
 import os
 import time
 import json
 import tempfile
+import subprocess
 from centaur.session import clients
 from centaur.jsonl_handler import JSONLHandler
 
 blueprint = Blueprint("evaluate", __name__)
 
+pwl_path = os.getenv("PWL_PATH", "pwl")
 
-@blueprint.route('/evaluate/<id>')
+if pwl_path is None:
+    raise ValueError("PWL_PATH environment variable is not set")
+
+@blueprint.route('/evaluate/<id>', methods=['POST'])
 def evaluate(id):
+    data = request.get_json()
+
+    if "file" in data:
+        file = data["file"]
+    else:
+        return jsonify({"error": "file_not_found"}), 400
+
     def stream():
         file_path = os.path.join(
             tempfile.gettempdir(), "centaur", f"{id}.jsonl")
@@ -47,6 +59,7 @@ def evaluate(id):
 
     if id not in clients:
         clients[id] = True
+        subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True)
         return Response(stream(), mimetype='text/event-stream')
     else:
         return jsonify({"error": "already_processed"}), 400
