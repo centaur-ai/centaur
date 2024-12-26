@@ -16,23 +16,40 @@ pwl_path = os.getenv("PWL_PATH", "pwl")
 if pwl_path is None:
     raise ValueError("PWL_PATH environment variable is not set")
 
-@blueprint.route('/evaluate/<id>', methods=['POST'])
-def evaluate(id):
+
+@blueprint.route('/evaluate', methods=['POST'])
+def stream():
     data = request.get_json()
+
+    if "id" in data:
+        id = data["id"]
+    else:
+        return jsonify({"error": "id_not_found"}), 400
 
     if "file" in data:
         file = data["file"]
     else:
         return jsonify({"error": "file_not_found"}), 400
 
+    file_path = os.path.join(
+        tempfile.gettempdir(), "centaur", f"{id}.jsonl")
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    with open(file_path, "w") as f:
+        # f.write(f"{}")// {"id":"ad708753-936f-4b9e-9851-5d831b9a8ae9","file":"socrates.txt","summary":"Socrates","description":"All humans are mortal, and Socrates is human"}
+        pass
+
+    if id not in clients:
+        clients[id] = True
+        # subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True)
+        return jsonify({"id": id}), 200
+    else:
+        return jsonify({"error": "already_processed"}), 400
+
+
+@blueprint.route('/evaluate/<id>', methods=['GET'])
+def init(id):
     def stream():
-        file_path = os.path.join(
-            tempfile.gettempdir(), "centaur", f"{id}.jsonl")
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-        with open(file_path, "w"):
-            pass
-
             queue = Queue()
             observer = Observer()
             observer.schedule(
@@ -57,9 +74,4 @@ def evaluate(id):
             except GeneratorExit:
                 observer.stop()
 
-    if id not in clients:
-        clients[id] = True
-        subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True)
-        return Response(stream(), mimetype='text/event-stream')
-    else:
-        return jsonify({"error": "already_processed"}), 400
+    return Response(stream(), mimetype='text/event-stream')
