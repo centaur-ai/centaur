@@ -43,7 +43,7 @@ def stream():
 
     if id not in clients:
         clients[id] = True
-        subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True, cwd=pwl_path)
+        subprocess.Popen(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True, cwd=pwl_path)
         return jsonify({"id": id}), 200
     else:
         return jsonify({"error": "already_processed"}), 400
