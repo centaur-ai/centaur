@@ -6,6 +6,7 @@ import time
 import json
 import tempfile
 import subprocess
+import uuid
 from centaur.session import clients
 from centaur.jsonl_handler import JSONLHandler
 
@@ -18,10 +19,7 @@ pwl_path = os.getenv("PWL_PATH", "/home/ubuntu/PWL")
 def stream():
     data = request.get_json()
 
-    if "id" in data:
-        id = data["id"]
-    else:
-        return jsonify({"error": "id_not_found"}), 400
+    id = uuid.uuid4()
 
     if "description" in data:
         description = data["description"]
