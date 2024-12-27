@@ -11,10 +11,7 @@ from centaur.jsonl_handler import JSONLHandler
 
 blueprint = Blueprint("evaluate", __name__)
 
-pwl_path = os.getenv("PWL_PATH", "pwl")
-
-if pwl_path is None:
-    raise ValueError("PWL_PATH environment variable is not set")
+pwl_path = os.getenv("PWL_PATH", "/home/ubuntu/PWL")
 
 
 @blueprint.route('/evaluate', methods=['POST'])
@@ -41,7 +38,7 @@ def stream():
 
     if id not in clients:
         clients[id] = True
-        # subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True)
+        subprocess.run(f"{pwl_path}/pwl_reasoner_dbg {file} --id {id}", shell=True, cwd=pwl_path)
         return jsonify({"id": id}), 200
     else:
         return jsonify({"error": "already_processed"}), 400
@@ -50,28 +47,28 @@ def stream():
 @blueprint.route('/evaluate/<id>', methods=['GET'])
 def init(id):
     def stream():
-            queue = Queue()
-            observer = Observer()
-            observer.schedule(
-                JSONLHandler(id, queue),
-                os.path.join(tempfile.gettempdir(), "centaur"),
-                recursive=False)
-            observer.start()
+        queue = Queue()
+        observer = Observer()
+        observer.schedule(
+            JSONLHandler(id, queue),
+            os.path.join(tempfile.gettempdir(), "centaur"),
+            recursive=False)
+        observer.start()
 
-            try:
-                while True:
-                    if not queue.empty():
-                        data = queue.get()
-                        if ("event" in data
-                                and "type" in data
-                                and data["type"] == "system"
-                                and data["event"] == "stream_end"):
-                            observer.stop()
-                            break
-                        else:
-                            yield f"data: {json.dumps(data)}\n\n"
-                    time.sleep(0.1)
-            except GeneratorExit:
-                observer.stop()
+        try:
+            while True:
+                if not queue.empty():
+                    data = queue.get()
+                    if ("event" in data
+                            and "type" in data
+                            and data["type"] == "system"
+                            and data["event"] == "stream_end"):
+                        observer.stop()
+                        break
+                    else:
+                        yield f"data: {json.dumps(data)}\n\n"
+                time.sleep(0.1)
+        except GeneratorExit:
+            observer.stop()
 
     return Response(stream(), mimetype='text/event-stream')
