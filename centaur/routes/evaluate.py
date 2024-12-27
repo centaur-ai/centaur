@@ -23,6 +23,11 @@ def stream():
     else:
         return jsonify({"error": "id_not_found"}), 400
 
+    if "description" in data:
+        description = data["description"]
+    else:
+        return jsonify({"error": "description_not_found"}), 400
+
     if "file" in data:
         file = data["file"]
     else:
@@ -33,8 +38,8 @@ def stream():
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     with open(file_path, "w") as f:
-        # f.write(f"{}")// {"id":"ad708753-936f-4b9e-9851-5d831b9a8ae9","file":"socrates.txt","summary":"Socrates","description":"All humans are mortal, and Socrates is human"}
-        pass
+        f.write(f"{json.dumps({"type": "system", "event": "stream_start", "description": description})}\n")
+        f.close()
 
     if id not in clients:
         clients[id] = True
