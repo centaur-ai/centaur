@@ -18,7 +18,6 @@ pwl_path = os.getenv("PWL_PATH", "/home/ubuntu/PWL")
 @blueprint.route('/evaluate', methods=['POST'])
 def stream():
     data = request.get_json()
-
     id = uuid.uuid4()
 
     if "description" in data:
@@ -29,13 +28,16 @@ def stream():
     if "file" in data:
         file = data["file"]
     else:
-        return jsonify({"error": "file_not_found"}), 400
+        file = os.path.join(pwl_path, f"{id}.txt")
+        with open(file, "w") as f:
+            f.write(description)
+            f.close()
 
-    file_path = os.path.join(
+    stream_path = os.path.join(
         tempfile.gettempdir(), "centaur", f"{id}.jsonl")
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    os.makedirs(os.path.dirname(stream_path), exist_ok=True)
 
-    with open(file_path, "w") as f:
+    with open(stream_path, "w") as f:
         f.write(json.dumps({"type": "system", "event": "stream_start", "description": description}) + "\n")
         f.close()
 
