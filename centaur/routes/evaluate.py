@@ -38,7 +38,7 @@ def stream():
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     with open(file_path, "w") as f:
-        f.write(f"{json.dumps({"type": "system", "event": "stream_start", "description": description})}\n")
+        f.write(json.dumps({"type": "system", "event": "stream_start", "description": description}) + "\n")
         f.close()
 
     if id not in clients:
