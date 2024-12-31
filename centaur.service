@@ -1,0 +1,17 @@
+[Unit]
+Description=Centaur Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m centaur.main
+StandardOutput=append:/var/log/centaur.log
+StandardError=append:/var/log/centaur.error.log
+Restart=always
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/centaur
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
