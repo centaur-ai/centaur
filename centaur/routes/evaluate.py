@@ -67,7 +67,7 @@ def init(id):
                     if ("event" in data
                             and "type" in data
                             and data["type"] == "system"
-                            and data["event"] == "stream_end"):
+                            and data["description"] == "stream_end"):
                         observer.stop()
                         break
                     else:
