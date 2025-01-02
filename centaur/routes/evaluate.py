@@ -64,7 +64,7 @@ def init(id):
             while True:
                 if not queue.empty():
                     data = queue.get()
-                    if ("event" in data
+                    if ("description" in data
                             and "type" in data
                             and data["type"] == "system"
                             and data["description"] == "stream_end"):
