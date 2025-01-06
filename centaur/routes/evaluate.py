@@ -60,15 +60,26 @@ def init(id):
             recursive=False)
         observer.start()
 
+        best_theory = None
+
         try:
             while True:
                 if not queue.empty():
                     data = queue.get()
-                    if ("description" in data
-                            and "type" in data
+                    if ("type" in data
+                            and "description" in data
+                            and "axiom" in data
+                            and data["type"] == "axiom"
+                            and data["description"] == "Best theory after optimization"):
+                        best_theory = {"type": "best_theory", "axiom": data["axiom"]}
+
+                    if ("type" in data
+                            and "description" in data
                             and data["type"] == "system"
                             and data["description"] == "stream_end"):
                         observer.stop()
+                        if best_theory:
+                            yield f"data: {json.dumps(best_theory)}\n\n"
                         break
                     else:
                         yield f"data: {json.dumps(data)}\n\n"
