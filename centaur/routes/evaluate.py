@@ -60,29 +60,33 @@ def init(id):
             recursive=False)
         observer.start()
 
-        best_theory = None
+        proofs = {}
 
         try:
             while True:
                 if not queue.empty():
                     data = queue.get()
-                    if ("type" in data
-                            and "description" in data
-                            and "axiom" in data
-                            and data["type"] == "axiom"
-                            and data["description"] == "Best theory after optimization"):
-                        best_theory = {"type": "best_theory", "axiom": data["axiom"]}
 
-                    if ("type" in data
-                            and "description" in data
-                            and data["type"] == "system"
-                            and data["description"] == "stream_end"):
+                    if ("id" in data
+                            and "proof_id" in data
+                            and "type" in data
+                            and data["type"] == "logical_form"):
+                        proof_id = data["proof_id"]
+                        proofs[proof_id] = data
+                    elif ("id" in data
+                            and "type" in data
+                            and data["type"] == "proof"):
+                        proof_id = data["id"]
+                        if proof_id in proofs:
+                            logical_form = proofs[proof_id]
+                            logical_form["proof"] = data
+                            yield f"data: {json.dumps(logical_form)}\n\n"
+                            del proofs[proof_id]
+                    elif "type" in data and data["type"] == "stream_end":
                         observer.stop()
-                        if best_theory:
-                            yield f"data: {json.dumps(best_theory)}\n\n"
-                        break
                     else:
                         yield f"data: {json.dumps(data)}\n\n"
+
                 time.sleep(0.1)
         except GeneratorExit:
             observer.stop()
