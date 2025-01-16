@@ -48,7 +48,7 @@ def stream():
 
     if evaluate_id not in clients:
         clients[evaluate_id] = True
-        subprocess.Popen(f"{pwl_path}/stream.sh {file} {evaluate_id}", shell=True, cwd=pwl_path)
+        subprocess.Popen(f"{pwl_path}/scripts/stream.sh {file} {evaluate_id}", shell=True, cwd=pwl_path)
         return jsonify({"id": evaluate_id}), 200
     else:
         return jsonify({"error": "already_processed"}), 400
