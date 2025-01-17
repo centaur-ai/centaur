@@ -12,7 +12,7 @@ from centaur.jsonl_handler import JSONLHandler
 
 blueprint = Blueprint("evaluate", __name__)
 
-pwl_path = os.getenv("PWL_PATH", "/home/ubuntu/qa/PWL")
+pwl_path = os.getenv("PWL_PATH", "/home/ubuntu/PWL")
 
 
 @blueprint.route('/evaluate', methods=['POST'])
